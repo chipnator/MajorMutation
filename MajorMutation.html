@@ -1,0 +1,644 @@
+<!DOCTYPE html>
+<!--
+Created using JS Bin
+http://jsbin.com
+
+Copyright (c) 2016 by chipnator (http://jsbin.com/yohupu/73/edit)
+
+Released under the MIT license: http://jsbin.mit-license.org
+-->
+<meta name="robots" content="noindex">
+<html>
+<head>
+  <meta charset="utf-8">
+  <title>JS Game</title>
+  <style>
+    p {
+    border: 1px solid black;
+    outline-style: double;
+    text-align: center;
+    }
+    
+    #redStyle {
+      color: red;
+    }
+
+    #styleA {
+      margin: 1%;
+      padding: 1%;
+      outline-color: red;
+      letter-spacing: 1px;
+    }
+
+    #styleB {
+      margin: 5%;
+      padding: 5%;
+      outline-color: blue;
+    }
+
+    #styleC {
+      margin: 5%;
+      padding: 5%;
+      outline-color: blue;
+    }
+  </style>
+</head>
+<body>
+  <script type="text/javascript">
+      var lastRoll = false;
+      var statArray = [50,50];
+      var statDesArray = ["strength","insanity",]
+      var myName = "Anon";
+      var adventureText = "";
+      var tempDesc = "";
+      var limbArray = [1,2,1,2,2,2,10,10,0,0,0];
+      var limbDesArray =["head","eye","nose","ear","arm","leg","finger","toe","tail","tentacle","wing"];
+      var sexDesArray = ["male","man","boy","female","woman","girl","kid","hermaphrodite","transexual","male lesbian","transgendered person","lesbian","gay man"];
+      var sexNum = 0;
+      var raceDesArray = ["Caucasian","Polish","Irish","Mediterranian","Scandanavian","Polynesian","Hawaiian","Brittish","Mongolian","Bostonian"];
+      var raceNum = 0;
+      var bodyDesArray = ["fat","anorexic","chubby","skinny","strong","buff","athletic","perfect","homeless","drunken","strung-out","godly","wicked smaht","trustworthy","scheming","unfathomable","boring","muscle-bound","tan","Jersey-looking"];
+      var bodyNum =0;
+      var hairColorDesArray = ["brown","blond","red","black","strawberry-blond","dirty-blond"];
+      var hairColorNum =0;
+      var hairStyleDesArray = ["buzz-cut","afro","gnatty-doo","bob cut","mullet","perm","short curly cut","stylish haircut","cornrow hair-do","flat-top buzz","spikes with the tips highlighted an unnatural green","que"];
+      var hairStyleNum = 0;
+      //map data ["","","",""] --> place adj, place noun, entrance adj, entrance noun
+      var myMap = [[["","","",""],["","","",""],["","","",""],["","","",""],["","","",""],["","","",""],["","","",""],["","","",""],["","","",""],["","","",""],["","","",""]],
+[["","","",""],["","","",""],["","","",""],["","","",""],["","","",""],["","","",""],["","","",""],["","","",""],["","","",""],["","","",""],["","","",""]],
+[["","","",""],["","","",""],["","","",""],["","","",""],["","","",""],["","","",""],["","","",""],["","","",""],["","","",""],["","","",""],["","","",""]],
+[["","","",""],["","","",""],["","","",""],["","","",""],["","","",""],["","","",""],["","","",""],["","","",""],["","","",""],["","","",""],["","","",""]],
+[["","","",""],["","","",""],["","","",""],["","","",""],["","","",""],["","","",""],["","","",""],["","","",""],["","","",""],["","","",""],["","","",""]],
+[["","","",""],["","","",""],["","","",""],["","","",""],["","","",""],["","","",""],["","","",""],["","","",""],["","","",""],["","","",""],["","","",""]],
+[["","","",""],["","","",""],["","","",""],["","","",""],["","","",""],["","","",""],["","","",""],["","","",""],["","","",""],["","","",""],["","","",""]],
+[["","","",""],["","","",""],["","","",""],["","","",""],["","","",""],["","","",""],["","","",""],["","","",""],["","","",""],["","","",""],["","","",""]],
+[["","","",""],["","","",""],["","","",""],["","","",""],["","","",""],["","","",""],["","","",""],["","","",""],["","","",""],["","","",""],["","","",""]],
+[["","","",""],["","","",""],["","","",""],["","","",""],["","","",""],["","","",""],["","","",""],["","","",""],["","","",""],["","","",""],["","","",""]],
+[["","","",""],["","","",""],["","","",""],["","","",""],["","","",""],["","","",""],["","","",""],["","","",""],["","","",""],["","","",""],["","","",""]]];
+      var myPosition = [2,2];
+      var initPosition = [2,2];
+      var score = 0; //score = score + 1;
+      var origLimbArray = [1,2,1,2,2,2,10,10,0,0,0];
+      var inventory = [];
+      var equipped = 0;
+    
+      function addText(inText){
+        if(inText==""){
+          document.getElementById("styleC").innerHTML=adventureText;
+        }else{
+          adventureText=inText.concat("<br><br>",adventureText);
+          document.getElementById("styleC").innerHTML=adventureText;
+        }
+        //Every time something happens and it is printed to the screen, check if game should end.
+        finishGame();
+      }
+    
+      function beginResetGame(){
+        document.getElementById("styleB").innerHTML='Enter your name: <input type="text" id="inName" onblur="resetGame()">';
+        document.getElementById("styleC").innerHTML='<button onclick="resetGame()">~ Click to Start ~</button>';
+      }
+    
+      function resetGame(){
+        //limb array --> "head","eye","nose","ear","arm","leg","finger","toe","tail","tentacle","wing"
+        var inNameStr = document.getElementById("inName").value;
+        if(inNameStr == ""){
+          var randNameArray = ["Star","Moon","Sun","Crazy Tom","Insane The Brain","Mad Max","Dog","Cat","Wolf Boy","Griffin","Lilith","Cat Dog","CatDog","Apple","June","Sunray","Moonshine","Emma Casey Jones","Friday"];
+          var randNameNum = randNum(randNameArray.length);
+          inNameStr = randNameArray[randNameNum];
+        }
+        if(inNameStr.substring(0,5) == "Crazy" || inNameStr.substring(0,6) == "Insane" || inNameStr.substring(0,3) == "Mad"){
+          statArray = [randNumMaxMin(25,90),randNumMaxMin(10,15)];
+          limbArray = [1,2,1,2,2,2,10,10,0,0,0];
+        }else if(inNameStr.substring(0,6) == "Strong" || inNameStr.substring(0,9) == "The Great"){
+          statArray = [randNumMaxMin(50,60),randNumMaxMin(25,10)];
+          limbArray = [1,2,1,2,2,2,10,10,0,0,0];
+        }else if(inNameStr == "Cat Dog" || inNameStr == "CatDog"){
+          statArray = [randNumMaxMin(40,75),randNumMaxMin(15,25)];
+          limbArray = [2,4,2,4,0,4,0,20,0,0,0];
+        }else if(inNameStr.substring(0,3) == "Dog" || inNameStr.substring(0,3) =="Cat" || inNameStr.substring(0,4) == "Wolf"){
+          statArray = [randNumMaxMin(20,30),randNumMaxMin(20,30)];
+          limbArray = [1,2,1,2,0,4,0,20,1,0,0];
+        }else if(inNameStr == "Griffin" || inNameStr =="Hypogrif"){
+          statArray = [randNumMaxMin(20,30),randNumMaxMin(20,30)];
+          limbArray = [1,2,1,2,0,4,0,20,1,0,2];
+        }else if(inNameStr == "Gargoyle" || inNameStr == "Lilith"){
+          statArray = [randNumMaxMin(40,75),randNumMaxMin(15,25)];
+          limbArray = [1,2,1,2,2,2,10,10,1,0,2];
+        }else{
+          statArray = [randNumMaxMin(25,50),randNumMaxMin(20,30)];
+          limbArray = [1,2,1,2,2,2,10,10,0,0,0];
+        }
+        myName = inNameStr;
+        origLimbArray = limbArray.slice();
+        initPosition = myPosition.slice();
+        lastRoll = false;
+        raceNum = randNum(raceDesArray.length);
+        sexNum = randNum(sexDesArray.length);
+        bodyNum = randNum(bodyDesArray.length);
+        hairStyleNum = randNum(hairStyleDesArray.length);
+        hairColorNum = randNum(hairColorDesArray.length);
+        var myLat = randNum(myMap.length);
+        var myLon = randNum(myMap[1].length);
+        myPosition = [myLat,myLon];
+        score = 0;
+        inventory = [{"name":"Worn Ragged Handwraps","attack":1}];
+        //findItem(1);
+        equipped = 0;
+        resetText();
+        resetButtons();
+      }
+    
+      function resetButtons(){
+        document.getElementById("styleB").innerHTML = '<button onclick="beginResetGame()">New Game</button>\
+        <button onclick="beginNameChange()">Change Name</button>\
+        <br><br>\
+        <button onclick="addText(describeChar())">Who am I?</button>\
+        <br><br>\
+        <button onclick="addText(describeAttack())">Let\'s do something!</button>\
+        <button onclick="addText(dispInv())">Check My Inventory</button>\
+        <br><br>\
+        <button onclick="addText(goNorth())">Go North</button><br>\
+        <button onclick="addText(goWest())">Go West</button>\
+        <button onclick="addText(getLocationStr())">Current Location?</button>\
+        <button onclick="addText(goEast())">Go East</button><br>\
+        <button onclick="addText(goSouth())">Go South</button>'; 
+        /* Extra Buttons 
+        <button onclick="addText(findItem(5))">Find Item</button>\
+        <button onclick="addText(describeLimbs())">What do I look like?</button>\
+        */
+      }
+    
+      function goNorth(){
+        if(myPosition[0]+1<myMap.length){
+          myPosition[0] = (myPosition[0]+1);
+          var placeStr = describeDungeonEntrance();
+          var placeStr_aOrAn = aOrAn(placeStr);
+          score = score + 1;
+          var roadAttack = rollForAttack();
+          return "Traveling Northwards leads ".concat(myName," to ",placeStr_aOrAn,". ",roadAttack);
+        }else{
+          return "Could not travel that direction.";
+        }
+      }
+    
+      function goSouth(){
+        if(myPosition[0]-1>=0){
+          myPosition[0] = myPosition[0]-1;
+          var placeStr = describeDungeonEntrance();
+          var placeStr_aOrAn = aOrAn(placeStr);
+          score = score + 1;
+          var roadAttack = rollForAttack();
+          return "Traveling Southwards leads ".concat(myName," to ",placeStr_aOrAn,". ",roadAttack);
+        }else{
+          return "Could not travel that direction.";
+        }
+      }
+    
+      function goWest(){
+        if(myPosition[1]-1>=0){
+          myPosition[1] = myPosition[1]-1;
+          var placeStr = describeDungeonEntrance();
+          var placeStr_aOrAn = aOrAn(placeStr);
+          score = score + 1;
+          var roadAttack = rollForAttack();
+          return "Traveling Westwards leads ".concat(myName," to ",placeStr_aOrAn,". ",roadAttack);
+        }else{
+          return "Could not travel that direction.";
+        }
+      }
+    
+      function goEast(){
+        if(myPosition[1]+1<myMap[myPosition[0]].length){
+          myPosition[1] = myPosition[1]+1;
+          var placeStr = describeDungeonEntrance();
+          var placeStr_aOrAn = aOrAn(placeStr);
+          score = score + 1;
+          var roadAttack = rollForAttack();
+          return "Traveling Eastwards leads ".concat(myName," to ",placeStr_aOrAn,". ",roadAttack);
+        }else{
+          return "Could not travel that direction.";
+        }
+      }
+
+      function getLocationStr(){
+        var placeStr = describeDungeonEntrance();
+        var placeStr_aOrAn = aOrAn(placeStr);
+        return "My current coordinates are [".concat(myPosition[0],", ",myPosition[1],"]<br>There is ",placeStr_aOrAn," nearby.")
+      }
+    
+      function resetText(){
+        adventureText = "At first there is nothing, the canvas of reality around you is nothing but pure potential of the mind. But then you choose a name, from which you draw power. You have become <t id='redStyle'>".concat(myName,"</t>... Will you be as clay in the hands of madmen or marbel in the hands of a genius?<br>");
+        document.getElementById("styleC").innerHTML=adventureText;
+      }
+      
+      /*
+      function getResponse(inputStr){
+        document.getElementById("styleB").innerHTML=inputStr.concat('<input type="text" id="inResponse" onblur="gotResponse()">');
+      }
+    
+      function gotResponse(){
+        tempDesc = document.getElementById("inResponse").value;
+        resetButtons();
+      }
+      */
+
+      function beginNameChange(){
+        document.getElementById("styleB").innerHTML='Enter your name: <input type="text" id="inName" onblur="finishNameChange()">';
+      }
+    
+      function finishNameChange(){
+        myName = document.getElementById("inName").value;//setName();
+        resetButtons();
+        addText("Your new name is ".concat(myName));
+      }
+
+      function randNum(inMax){
+        return Math.floor(Math.random()*inMax);
+      }
+    
+      function randNumMaxMin(inA,inB){
+        var outNum = 0;
+        if(inA>inB){
+          outNum = Math.floor(Math.random()*(inA-inB))+inB;          
+        }else{
+          outNum = Math.floor(Math.random()*(inB-inA))+inA;
+        }
+        return outNum;
+      }
+
+      function limbChange(change,amount){
+        //method to change limb count for your character 
+        if(limbArray[change]+amount<0){
+          limbArray[change]=0;
+        }else{
+          limbArray[change] = (limbArray[change]+amount);
+        }
+        var outLimbStr = getLimbStr(change);
+        var outStr = myName.concat(" now has ",outLimbStr,". ");
+        return outStr;
+      }
+    
+      function describeLimbs(){
+        // returns a statement of how many of each body part character has, can effect sanity
+        //var origLimbArray = [1,2,1,2,2,2,10,10,0,0,0];
+        var sanityChange = 0;
+        var sen=myName.concat(" has ");
+        var allZero = false; //stops the loop if only zeros after 
+        for(i=0; i<limbArray.length && !allZero; i++){
+            var limbNum = limbArray[i];
+            sanityChange = sanityChange + Math.abs(origLimbArray[i]-limbNum);
+            var limbSuffix = "";
+            var ending = ", ";
+            var endingPrefix = "";
+            if(limbNum != 1){
+              limbSuffix = "s";
+            }
+            allZero = true; //set to stop loop
+            for(u=i+1; u<limbArray.length; u++){
+              //prevent loop-stop if number of limbs != 0 for any remaining
+              if(limbArray[u]!=0){
+                allZero = false;
+              } 
+            }
+            if(i==limbDesArray.length-1 || allZero){
+              endingPrefix="and ";
+              ending=". ";
+            }
+            sen=sen.concat(endingPrefix,limbArray[i]," ",limbDesArray[i],limbSuffix,ending);
+        }
+        if(sanityChange != 0 && Math.random()>0.5){
+          //add up to half of sanityChange to sanity
+          var toAdd = Math.ceil(sanityChange*0.5*Math.random());
+          var oldVal = statArray[1];
+          changeSanity(toAdd);
+          sen=sen.concat("Though initally painful, facing facts has had a positive effect on your psychological well-being. You are now ",statArray[1],"% sane. (You were ",oldVal,"% sane before.)")
+        }else if(sanityChange != 0){
+          var toSub = Math.floor(sanityChange*Math.random());
+          var oldVal = statArray[1];
+          changeSanity(-1*toSub);
+          sen=sen.concat("One look in the mirror and it shattered, just like your tortured mind. Your sanity was ",oldVal,"% and you are now ",statArray[1],"% sane.");
+        }
+        return sen;
+      }
+
+      function describeChar(){
+        //full description of character
+        var ldes = describeLimbs();
+        var attackSum = statArray[0]+inventory[equipped]["attack"];
+        var des = myName.concat(" is a ",bodyDesArray[bodyNum]," ",raceDesArray[raceNum]," ",sexDesArray[sexNum]," with a  ",hairColorDesArray[hairColorNum]," ",hairStyleDesArray[hairStyleNum],". ","You are ",statArray[1],"% sane (",(100-statArray[1]),"% insane) and your attack is ",attackSum,". Your travel prestiege is ",score,". ",ldes)
+        return des;
+      }
+    
+      function getLimbStr(limbNum){
+        //description of number of a specific limb
+        //for example returns "a nose" or "2 eyes"
+        var numStr;
+        var outStr;
+        if(limbArray[limbNum]==1){
+          outStr = aOrAn(limbDesArray[limbNum]);
+        }else{
+          outStr = "".concat(limbArray[limbNum]," ",limbDesArray[limbNum],"s");
+        }
+        return outStr;
+      }
+    
+      function place(){
+        if(myMap[myPosition[0]][myPosition[1]][0]==""){
+          //chooses an adj and place randomly from lists
+          var adjList =['scary','grim','dark','dank','moldering','burning','stone','trashed','run down','burt out','collapsing','unstable','radioactive','dangerous','unfamiliar','abandoned']
+          var placeList = ['laboratory','asylum','hotel','mine','opera house','fort','park','castle','cemetary','mortuary','arms factory','lighthouse','brewery','meuseum','estate','middle school']
+          var a = randNum(adjList.length);
+          var p = randNum(placeList.length);
+          myMap[myPosition[0]][myPosition[1]][0] = adjList[a];
+          myMap[myPosition[0]][myPosition[1]][1] = placeList[p];
+          return adjList[a].concat(" ",placeList[p]);
+        }else{
+          var adj = myMap[myPosition[0]][myPosition[1]][0];
+          var nou = myMap[myPosition[0]][myPosition[1]][1];
+          return adj.concat(" ",nou);
+        }
+      }
+    
+      function encounter(){
+        /*chooses an adj and a being randomly from lists*/
+        var adjList=['evil','creepy','chilling','terrifying','blood soaked','insane','menacing','darkness enshrouded','vile'];
+        var encList=['monster','imp','goul','demon','draugr','gargoyle','scientist','politician','vampire','ghost','bascilisk','poultergeist','corporate pig'];
+        var a = randNum(adjList.length);
+        var e = randNum(encList.length);
+        return adjList[a].concat(" ",encList[e]);
+        // TO DO: make it get description from map instead of randomly
+      }
+      
+      function changeAttack(inNum){
+        statArray[0] = statArray[0]+inNum;
+      }
+    
+      function changeSanity(inNum){
+        statArray[1] = statArray[1]+inNum;
+      }
+    
+      function getAttack(){
+        return statArray[0];
+      }
+    
+      function getSanity(){
+        return statArray[1];
+      }
+    
+      function attack(attacker,level){
+        /* checks if attack X %sanity > attack X random_val(val<1) 
+        and return T/F bool */
+        var randAttack = randNum(statArray[0]); //value = random val that's less than attack
+        var sanityCheck = Math.floor((statArray[1]/100)*statArray[0]); //%sanity * attack
+        var attackBool = (randAttack<sanityCheck); //check (random val that's less than attack) < (%sanity * attack)
+        var itemFound = "";
+        var outStr = "";
+        /* NOT WORKING AS IT SHOULD */
+        var theta = randNumMaxMin(-level,level);
+        if(theta==0){
+          var passStr = "You barely escaped the ".concat(attacker,". ");
+          var failStr = "The ".concat(attacker," tried to kick your ass, but you ran off. ")
+          //itemFound = findItem(0);
+        }else if(theta<0){
+          var passStr = "You barely escaped the ".concat(attacker,"... Your attack was lowered by ",theta*-1,". ");
+          var failStr = "The ".concat(attacker," kicked your ass. Your sanity was lowered by ",theta*-1,". ")
+        }else if(theta<level/2){
+          var passStr = "You handily escaped the ".concat(attacker,"... Your attack was raised by ",theta,". ");
+          var failStr = "The ".concat(attacker," really had you beat, it was just luck that you escaped without a scratch. What doesn't kill you makes you sronger; your sanity was raised by ",theta,". ")
+          itemFound = findItem(Math.ceil(level*1.5));
+          score++;
+        }else{
+          var passStr = "You barely escaped the ".concat(attacker,"... Your attack was raised by ",theta,". ");
+          var failStr = "The ".concat(attacker," beat you sober; your sanity was raised by ",theta,". ")
+          itemFound = findItem(level);
+          score++;
+        }
+        var attackStr = attackBool?passStr:failStr;
+        if(attackBool){
+          changeAttack(theta);
+        }else{
+          changeSanity(theta);
+        }
+        outStr = outStr.concat(attackStr,itemFound)
+        return outStr;
+        // TO DO: instead of random interaction, get level of monster as defined by map
+        // TO DO: specific values vary randomly, allowing for uncertainty over multiple plays
+      }
+    
+      function rollForAttack(){
+        //uses decimals, returns t/f comparison
+        var rollNumer = Math.sqrt(Math.pow(initPosition[0]-myPosition[0],2) + Math.pow(initPosition[1]-myPosition[1],2));
+        var rollDenom = Math.sqrt(Math.pow(myMap.length,2)+Math.pow(myMap[1].length,2));
+        var rollCheck = randNum(100)/100;
+        if(rollNumer/rollDenom>rollCheck){ //Attack 
+          return describeAttack("Noises eminate... Your hair is on end, every fiber of your being says 'Run, you fool!' but you know that would only spring a trap and seal your fate. So with nerves on edge, you continue to travel onwards. ");
+        }else{
+          return "The silence is deafening... There appears to be nobody around right now; oh well, at least you're safe. ";
+        }
+      }
+    
+      function getLevel(){ //distance = sqrt(((x0-x1)^2)+((y0-y1)^2))
+        return Math.floor(Math.sqrt(Math.pow(initPosition[0]-myPosition[0],2) + Math.pow(initPosition[1]-myPosition[1],2)));
+      }
+    
+      function describeAttack(inputStr){
+        //input: string put before the rest of the text, transitions for example
+        //creates a scenario - handles compiling different random story elements 
+        var miscInput;
+        if(typeof(inputStr) != "string"){
+          miscInput = inputStr;
+          inputStr = "";
+        }
+        var placeStr = place();
+        var placeStr_aOrAn = aOrAn(placeStr);
+        var encStr = encounter();
+        var encStr_aOrAn = aOrAn(encStr);
+        var out = inputStr;
+        var entrance = describeDungeonEntrance();
+        var anEntrance = aOrAn(entrance);
+        var myNameWhispered = wordWhispered(myName);
+        var whichStory = randNum(5);//Number of options
+        var level = getLevel();
+        if(whichStory==0){
+          var oldHairColor = hairColorDesArray[hairColorNum];
+          var oldHairStyle = hairStyleDesArray[hairStyleNum];
+          getMakeOver();
+          out = out.concat(myName," enters the ",entrance," and finds ",placeStr_aOrAn,". Within lies ",encStr_aOrAn,", who tries to murder your ",bodyDesArray[bodyNum]," face because the ",encStr," doesn't like your ",oldHairColor," ",oldHairStyle,". The Mysterious(-ly Stylish) Stranger comes to your rescue with a makeover, ",myName," now has ",hairColorDesArray[hairColorNum]," ",hairStyleDesArray[hairStyleNum],". ");
+        }if(whichStory==1){
+          var attackStr = attack(encStr,level);
+          out = out.concat("Walking along a path near ",placeStr_aOrAn," after passing through ",anEntrance,", ",myName," happens along ",encStr_aOrAn,", who tries to slit your ",bodyDesArray[bodyNum]," neck. The ",encStr,"'s knife comes so close that it nips the tips off a few hairs of your ",hairColorDesArray[hairColorNum]," ",hairStyleDesArray[hairStyleNum],". ",attackStr);
+        }if(whichStory==2){
+          var curLimb = randNum(limbArray.length);
+          var limbStr = getLimbStr(curLimb);
+          var changeVal = randNumMaxMin(-level,level);
+          var changeStr = limbChange(curLimb,changeVal);
+          out = out.concat("Walking a narrow trail, ",myName," comes accross ",anEntrance," to ",placeStr_aOrAn,". As the wind blows, you hear something or someone whisper '",myNameWhispered,"...' from deep within the inky black and velvet darkness behind the ",entrance,". Suddenly, ",encStr_aOrAn," tries to murder that ",bodyDesArray[bodyNum]," face because the ",encStr," doesn't like how ",myName," has ",limbStr,". Trying to run was a bad idea, magic twists ",myName,"'s body into a new form. ",changeStr);
+        }if(whichStory==3){
+          var resultStr = "";
+          var resultNum = randNum(30);
+          if(resultNum<10){
+            var oldSanity = getSanity();
+            changeSanity(-randNum(level));
+            var newSanity = getSanity();
+            resultStr = "Suddenly your mind is attacked by the force, pain cracks through your skull. Your sanity was lowered from ".concat(oldSanity,"% to ",newSanity,"%. ");
+          }else{
+            var oldSanity = getSanity();
+            changeSanity(randNum(level));
+            var newSanity = getSanity();
+            resultStr = "You're deemed worthy, the walls glow warmly, and the force uses the cave to heal you. Your sanity is healed from ".concat(oldSanity,"% to ",newSanity,"%. ");
+          }
+          out = out.concat(myName," comes accross ",anEntrance," to ",placeStr_aOrAn,". As the wind blows your name, '",myNameWhispered,"...' from deep within the inky black and velvet darkness behind the ",entrance,". Something draws you in; the force is irresistable. Against your better judgement, you enter the ",entrance,", only to find it a dead end and empty. You wander forwards, deeper into the ",placeStr,". ",resultStr);
+        }if(whichStory==4){
+          var foundItem = findItem(level*randNum(10));
+          out = out.concat("You come accross ",anEntrance," to ",placeStr_aOrAn,". From deep within the inky black and velvet darkness behind the ",entrance,", the wind blows your name, '",myNameWhispered,"...' Something draws you in; the force is irresistable. Against your better judgement, you enter the ",placeStr,", which leads to a staircase and a deep chamber. The heart of the force hangs, silently overpowering you; the great ball of energy is situated in the center of a circle of small boulders; the floor is sand. Suddenly you feel it tearing away your minds defences, but you are deemed worthy by the non-corporial entity living within the force ball. The being wills you some of it's power. ",foundItem);
+        }
+        score = score + 1;
+        return out;
+      }
+    
+      function getMakeOver(){
+        hairStyleNum = randNum(hairStyleDesArray.length);
+        hairColorNum = randNum(hairColorDesArray.length);
+      }
+        
+      function aOrAn(inStr){
+        var outStr = "";
+        var vowelBool = beginsWithVowel(inStr);
+        if(vowelBool){
+          outStr = "an ".concat(inStr);
+        }else{
+          outStr = "a ".concat(inStr);
+        }
+        return outStr;
+      }
+    
+      function beginsWithVowel(inStr){
+        var inCh = inStr.substring(0,1);
+        return inCh=='a' || inCh=='e' || inCh=='i' || inCh=='o' || inCh=='u' || inCh=='A' || inCh=='E' || inCh=='I' || inCh=='O' || inCh=='U';
+      }
+    
+      function wordWhispered(inStr){
+        var outStr = '<i>';
+        for(i=0;i<inStr.length;i++){
+          var cur = inStr.substring(i,i+1);
+          var curLower = cur.toLowerCase();
+          var curUpper = cur.toUpperCase();
+          if(i==0 || i==inStr.length-1){
+            outStr = outStr.concat(curUpper,curLower,curLower);
+          }else if(i%3==0){
+            outStr = outStr.concat(curUpper,curLower,curUpper);
+          }else{
+            outStr = outStr.concat(curLower,curUpper,curLower);
+          }
+        }
+        return outStr.concat('</i>');
+      }
+      
+      function describeDungeonEntrance(){
+        if(myMap[myPosition[0]][myPosition[1]][2]==""){
+          var entryAdjArray = ["well-hidden","hidden","creepy","ornate","ominous","scary","gruesome"];
+          var entryAdjNum = randNum(entryAdjArray.length);
+          var entryNounArray = ["Spider-hole","doorway","passage","archway","Hobbit-hole","cave entrance","crypt entrance"];
+          var entryNounNum = randNum(entryNounArray.length);
+          myMap[myPosition[0]][myPosition[1]][2] = entryAdjArray[entryAdjNum];
+          myMap[myPosition[0]][myPosition[1]][3] = entryNounArray[entryNounNum];
+          return entryAdjArray[entryAdjNum].concat(" ",entryNounArray[entryNounNum]);
+        }else{
+          var adj = myMap[myPosition[0]][myPosition[1]][2];
+          var nou = myMap[myPosition[0]][myPosition[1]][3];
+          return adj.concat(" ",nou);
+        }
+      }
+    
+      function finishGame(){
+        //attack at 100, or sanity at zero end game
+        var outStr="";
+        if(statArray[0]>=100){ 
+          outStr = "All stand in awe of your unsurpassed strength! ".concat(myName," is master of all!");
+        }else if(statArray[0]<=0){ 
+          outStr = "Atrophied muscles and empty stomach burn with the need for sustenance! ".concat(myName," is unable to go on, has no way of calling for help, and dies for lack of food and water.");
+        }else if(statArray[1]<=0){
+          outStr = "Sanity slips through your grasp like grains of water! ".concat(myName," is lost within the dusk of the realm of shadows!");
+        }else if(statArray[1]>=100){
+          outStr = "Farsight is the gift of knowledge beyond one's self and physical body. ".concat(myName," masters Farsight throught knowledge of the tautological nature of the fabric of reality!");
+        }
+        if(outStr!=""){
+          document.getElementById("styleC").innerHTML="Score: ".concat(score,"<br>",outStr,"<br><br>",adventureText);
+          document.getElementById("styleB").innerHTML= '<button onclick="beginResetGame()">New Game</button>';
+        }
+      }
+      
+      function addToInv(inItem){
+        inventory[inventory.length]=inItem;
+      }
+    
+      function makeItem(inName,inAtt){ 
+        //TOO COMPLEX for the time being, but eventually want it to be like this:
+        //function makeItem(inName,inDesc,inAtt,inDef){
+        //var out = {name:inName,desc:inDesc,attack:inAtt,defence:inDef};
+        var out = {"name":inName,"attack":inAtt};
+        return out;
+      }
+
+      function findItem(inLevel){
+        var inDescLevel = (inLevel<3) ? inLevel : 3;//true:false
+        var itemDesc = [[["Weak","a"],["Timid","a"],["Flimsey","a"],["Dull","a"],["Useless","a"],["Yielding","a"],["Faulty","a"],["Broken","a"],["Dryrotted","a"]],
+                        [["Basic","a"],["Old Wooden","a"],["Blunt","a"],["Useful","a"],["Unyelding","a"],["Adaquate","a"],["Slate","n"],["Stone","n"]],
+                        [["Stronger","a"],["Marble","n"],["Granite","n"],["Worked","a"],["Handy","a"],["Unbreaking","a"],["Good","a"],["Well-Crafted","a"],["Hickory Wood","n"],["Oak Wood","n"],["Maple Wood","n"]],
+                        [["Diamond","n"],["Ruby","n"],["Emerald","n"],["Opal","n"],["Magic","n"],["Crystal","n"]]];
+        var items = ["Fist Wraps","Sword","Halberd","Mace","Dagger","Scimitar","Kitana","Flail","Glave","Crossbow","Longbow","Shortbow","Glave","Spear","Lengdebreve","Pole Axe","War-Scithe","Partisan","Military Fork"];
+        var itemDescNum = randNum(itemDesc[inDescLevel].length);
+        var outName = itemDesc[inDescLevel][itemDescNum][0];
+        if(itemDesc[inDescLevel][itemDescNum][1]=="n"){ //itemDesc[itemDescNum][1] != "n" -> nBridge is blank
+          var nBridge = ["","Studded","Laced","Beaded","Inlaid","Tipped","Edged","Layered"];
+          var nBridgeNum = randNum(nBridge.length-1)+1;
+          outName = outName.concat(" ",nBridge[nBridgeNum])
+        }
+        var itemsNum = randNum(items.length);
+        outName = outName.concat(" ",items[itemsNum])
+        //var outDesc = "This is a ".concat(outName,) //Not doing full descriptions for each weapon type yet
+        var maxN = (inLevel+1)*2;
+        var minN = (inLevel+1)*10;
+        var outAtt = randNumMaxMin(maxN,minN);
+        var createdItem = makeItem(outName,outAtt);
+        addToInv(createdItem);
+        return myName.concat(" found ",aOrAn(outName)," with an attack value of ",outAtt,". ")
+      }
+
+      function setEquipped(inNum){
+        if(inNum<inventory.length){
+          equipped = inNum;
+          var textToAdd = myName.concat(" Equipped ",aOrAn(inventory[equipped]["name"]));
+          addText(textToAdd);
+        }else{
+          alert("Can't equip a non-existant weapon.");
+          addText("");
+        }
+      }
+    
+      function dispInv(){
+        var dispOut = "";
+        for(var i=0; i<inventory.length;i++){
+          dispOut = dispOut.concat("<button onclick='setEquipped(",i,")'>",inventory[i]["name"]," ~ Attack: ",inventory[i]["attack"],"</button><br>")
+        }
+        dispOut = dispOut.concat("<button onclick='addText(\"\")'>Cancel</button><br>")
+        document.getElementById("styleC").innerHTML=dispOut;
+      }
+      
+
+  </script>
+  <p id="styleA">
+    What is this?<br>
+    A text adventure, of course!
+  </p>
+  <p id="styleB">
+    Enter your name: <input type="text" id="inName" onblur="resetGame()">
+    <br><br>Or, for a random name,
+    <br> and potentially a stat boost,<br>
+    <button onclick="resetGame()">Click to Start</button>
+  </p>
+  <p id="styleC">
+    The adventure begins...
+  </p>
+</body>
+</html>
